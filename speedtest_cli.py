@@ -15,6 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from __future__ import print_function
+
 __version__ = '0.2.4'
 
 # Some global variables we use
@@ -464,6 +466,8 @@ def speedtest():
     parser.add_argument('--source', help='Source IP address to bind to')
     parser.add_argument('--version', action='store_true',
                         help='Show the version number and exit')
+    parser.add_argument('--log', action='store_true', 
+                        help='Show output in log format')
 
     options = parser.parse_args()
     if isinstance(options, tuple):
@@ -475,6 +479,9 @@ def speedtest():
     # Print the version and exit
     if args.version:
         version()
+
+    if args.log:
+        args.simple = True
 
     # If specified bind to a specific IP address
     if args.source:
@@ -571,7 +578,12 @@ def speedtest():
             print_('Hosted by %(sponsor)s (%(name)s) [%(d)0.2f km]: '
                    '%(latency)s ms' % best)
     else:
-        print_('Ping: %(latency)s ms' % best)
+        if args.log:
+            print(time.strftime("%x"), end="|")
+            print(time.strftime("%X"), end="|")
+            print('%(latency)s' % best, end="|")
+        else:
+            print_('Ping: %(latency)s ms' % best)
 
     sizes = [350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
     urls = []
@@ -584,7 +596,10 @@ def speedtest():
     dlspeed = downloadSpeed(urls, args.simple)
     if not args.simple:
         print_()
-    print_('Download: %0.2f Mbit/s' % ((dlspeed / 1000 / 1000) * 8))
+    if (args.log):
+        print('%0.2f' % ((dlspeed / 1000 / 1000) * 8), end="|")
+    else:
+        print_('Download: %0.2f Mbit/s' % ((dlspeed / 1000 / 1000) * 8))
 
     sizesizes = [int(.25 * 1000 * 1000), int(.5 * 1000 * 1000)]
     sizes = []
@@ -596,7 +611,10 @@ def speedtest():
     ulspeed = uploadSpeed(best['url'], sizes, args.simple)
     if not args.simple:
         print_()
-    print_('Upload: %0.2f Mbit/s' % ((ulspeed / 1000 / 1000) * 8))
+    if args.log:
+        print('%0.2f' % ((ulspeed / 1000 / 1000) * 8))
+    else:
+        print_('Upload: %0.2f Mbit/s' % ((ulspeed / 1000 / 1000) * 8))
 
     if args.share and args.mini:
         print_('Cannot generate a speedtest.net share results image while '

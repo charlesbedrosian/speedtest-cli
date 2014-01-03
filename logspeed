@@ -1,0 +1,9 @@
+#!/bin/bash
+LOG_FILE="speedtest.log"
+SERVER_ID=2574
+echo Executing speed test and logging result to $LOG_FILE
+if [ ! -f $LOG_FILE ]; then
+   echo "date|time|latency (ms)|download (Mbit/s)|upload (MBit/s)" >> $LOG_FILE
+fi
+./speedtest_cli.py --server $SERVER_ID --log >> $LOG_FILE
+tail -n 1 $LOG_FILE
